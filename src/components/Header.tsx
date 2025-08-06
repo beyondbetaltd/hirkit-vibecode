@@ -19,7 +19,7 @@ export const Header = () => {
         </nav>
         
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" className="hidden md:inline-flex">
+          <Button variant="ghost" className="hidden md:inline-flex" onClick={() => window.location.href = '/signin'}>
             Sign In
           </Button>
           <Button variant="hero">
