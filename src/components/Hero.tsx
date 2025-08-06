@@ -25,14 +25,14 @@ export const Hero = () => {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="gradient" size="lg" className="text-lg px-8 py-6">
-              Explore Tests
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-              Watch Demo
-            </Button>
-          </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button variant="gradient" size="lg" className="text-lg px-8 py-6" onClick={() => window.location.href = '/demo'}>
+                Try Interactive Demo
+              </Button>
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                Watch Demo
+              </Button>
+            </div>
         </div>
         
         <div className="relative">
