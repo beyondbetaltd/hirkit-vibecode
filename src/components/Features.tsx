@@ -1,4 +1,4 @@
-import { Bot, Calendar, Users, Zap, Clock, BarChart3 } from "lucide-react";
+import { Bot, Calendar, Users, Zap, Clock, BarChart3, Code, FileText, Brain } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Features = () => {
@@ -32,6 +32,21 @@ const Features = () => {
       icon: BarChart3,
       title: "Analytics & Insights",
       description: "Make data-driven decisions with comprehensive hiring metrics and performance reports.",
+    },
+    {
+      icon: Code,
+      title: "Technical Assessments",
+      description: "Evaluate coding skills with live programming challenges, algorithm tests, and real-world problem-solving scenarios.",
+    },
+    {
+      icon: FileText,
+      title: "Non Technical Assessments",
+      description: "Assess communication, leadership, and role-specific competencies through customizable questionnaires and simulations.",
+    },
+    {
+      icon: Brain,
+      title: "Psychology Assessments",
+      description: "Understand personality traits, cognitive abilities, and cultural fit with scientifically-validated psychological evaluations.",
     },
   ];
 
