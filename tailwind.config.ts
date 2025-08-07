@@ -62,24 +62,18 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				'glass-bg': 'var(--glass-bg)',
+				'glass-border': 'var(--glass-border)'
+			},
+			boxShadow: {
+				'elegant': 'var(--shadow-elegant)',
+				'glow': 'var(--shadow-glow)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
-			},
-			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-accent': 'var(--gradient-accent)',
-			},
-			boxShadow: {
-				'feature': 'var(--shadow-feature)',
-				'glow': 'var(--shadow-glow)',
-			},
-			transitionTimingFunction: {
-				'smooth': 'var(--transition-smooth)',
 			},
 			keyframes: {
 				'accordion-down': {

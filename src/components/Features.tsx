@@ -1,86 +1,78 @@
-import { Card, CardContent } from "@/components/ui/card";
-import featureAssessment from "@/assets/feature-assessment.png";
-import featureLibrary from "@/assets/feature-library.png";
-import featureSecurity from "@/assets/feature-security.png";
-import featureResults from "@/assets/feature-results.png";
+import { Bot, Calendar, Users, Zap, Clock, BarChart3 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const Features = () => {
+const Features = () => {
   const features = [
     {
-      title: "Quick Assessment Creation",
-      description: "In < 1 minute, Specify Role, Select Skills and Questions and Share Assessment with candidates.",
-      image: featureAssessment,
-      gradient: "from-blue-500/20 to-purple-500/20"
+      icon: Bot,
+      title: "AI-Powered Matching",
+      description: "Advanced algorithms match candidates to positions with 95% accuracy, saving hours of manual screening.",
     },
     {
-      title: "Our Questions and Yours",
-      description: "Choose from 10s of 1000s of Questions across Skills and Difficulty Levels. Or add questions of your own.",
-      image: featureLibrary,
-      gradient: "from-purple-500/20 to-pink-500/20"
+      icon: Calendar,
+      title: "Smart Scheduling",
+      description: "Automatically coordinate interview times across multiple stakeholders and time zones.",
     },
     {
-      title: "Disable Google and ChatGPT",
-      description: "Our Automated AI Proctoring is best in-class. No more concerns about candidates cheating on online tests",
-      image: featureSecurity,
-      gradient: "from-pink-500/20 to-red-500/20"
+      icon: Users,
+      title: "Candidate Pipeline",
+      description: "Track candidates through every stage with automated status updates and notifications.",
     },
     {
-      title: "Real-time Results & Simple Dashboards",
-      description: "See results immediately on candidate submission. Filter, export and easily manage pipeline",
-      image: featureResults,
-      gradient: "from-green-500/20 to-blue-500/20"
-    }
+      icon: Zap,
+      title: "Workflow Automation",
+      description: "Eliminate repetitive tasks with customizable automation rules and triggers.",
+    },
+    {
+      icon: Clock,
+      title: "Real-time Updates",
+      description: "Stay informed with instant notifications about interview changes and candidate responses.",
+    },
+    {
+      icon: BarChart3,
+      title: "Analytics & Insights",
+      description: "Make data-driven decisions with comprehensive hiring metrics and performance reports.",
+    },
   ];
 
   return (
-    <section id="features" className="py-24 bg-gradient-accent">
+    <section id="features" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <div className="inline-block mb-4">
-            <span className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
-              EQUIP FEATURES
-            </span>
-          </div>
-          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            Features So Good, They Deserve{" "}
-            <span className="bg-gradient-hero bg-clip-text text-transparent">
-              Their Own Corner Office
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Everything You Need to{" "}
+            <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+              Hire Smarter
             </span>
           </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Streamline your entire recruitment process with powerful features designed for modern HR teams.
+          </p>
         </div>
-
-        <div className="grid lg:grid-cols-2 gap-8">
-          {features.map((feature, index) => (
-            <Card 
-              key={feature.title} 
-              className={`group hover:shadow-feature transition-all duration-500 border-0 bg-card/80 backdrop-blur-sm hover:scale-105 ${
-                index % 2 === 0 ? 'lg:translate-y-8' : ''
-              }`}
-            >
-              <CardContent className="p-8">
-                <div className="space-y-6">
-                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                    <img 
-                      src={feature.image} 
-                      alt={feature.title}
-                      className="w-12 h-12 object-contain"
-                    />
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => {
+            const IconComponent = feature.icon;
+            return (
+              <Card key={index} className="border-border hover:shadow-card transition-all duration-300 hover:-translate-y-1 bg-card">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center mb-4">
+                    <IconComponent className="h-6 w-6 text-primary-foreground" />
                   </div>
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
-                      {feature.title}
-                    </h3>
-                    <p className="text-muted-foreground text-lg leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <CardTitle className="text-xl text-card-foreground">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-muted-foreground">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 };
+
+export default Features;
