@@ -37,9 +37,11 @@ const Hero = () => {
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Button variant="outline-hero" size="lg" className="text-lg px-8 py-6" onClick={() => window.location.href = '/demo'}>
-                Try Interactive Demo
-              </Button>
+              <Link to="/demo">
+                <Button variant="outline-hero" size="lg" className="text-lg px-8 py-6">
+                  Try Interactive Demo
+                </Button>
+              </Link>
             </div>
             
             <div className="flex items-center justify-center lg:justify-start gap-8 mt-12 text-sm text-muted-foreground">

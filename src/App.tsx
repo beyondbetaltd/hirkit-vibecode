@@ -10,6 +10,7 @@ import Contact from "./pages/Contact";
 import SignIn from "./pages/SignIn";
 import ProductEnterprise from "./pages/ProductEnterprise";
 import ProductSmallMidsize from "./pages/ProductSmallMidsize";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/demo" element={<Demo />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/product/enterprise" element={<ProductEnterprise />} />
           <Route path="/product/small-midsize" element={<ProductSmallMidsize />} />
