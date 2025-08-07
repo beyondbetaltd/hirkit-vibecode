@@ -48,19 +48,19 @@ const Header = () => {
                 Features <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-64 bg-card border border-border">
-                <Link to="/#features">
+                <Link to="/assessments/technical">
                   <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
                     <div className="font-medium text-card-foreground">Technical Assessments</div>
                     <div className="text-sm text-muted-foreground">Code challenges & algorithms</div>
                   </DropdownMenuItem>
                 </Link>
-                <Link to="/#features">
+                <Link to="/assessments/non-technical">
                   <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
                     <div className="font-medium text-card-foreground">Non Technical Assessments</div>
                     <div className="text-sm text-muted-foreground">Communication & leadership</div>
                   </DropdownMenuItem>
                 </Link>
-                <Link to="/#features">
+                <Link to="/assessments/psychology">
                   <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
                     <div className="font-medium text-card-foreground">Psychology Assessments</div>
                     <div className="text-sm text-muted-foreground">Personality & cognitive traits</div>

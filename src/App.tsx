@@ -10,6 +10,9 @@ import Contact from "./pages/Contact";
 import SignIn from "./pages/SignIn";
 import ProductEnterprise from "./pages/ProductEnterprise";
 import ProductSmallMidsize from "./pages/ProductSmallMidsize";
+import TechnicalAssessments from "./pages/TechnicalAssessments";
+import NonTechnicalAssessments from "./pages/NonTechnicalAssessments";
+import PsychologyAssessments from "./pages/PsychologyAssessments";
 import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/signin" element={<SignIn />} />
           <Route path="/product/enterprise" element={<ProductEnterprise />} />
           <Route path="/product/small-midsize" element={<ProductSmallMidsize />} />
+          <Route path="/assessments/technical" element={<TechnicalAssessments />} />
+          <Route path="/assessments/non-technical" element={<NonTechnicalAssessments />} />
+          <Route path="/assessments/psychology" element={<PsychologyAssessments />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
