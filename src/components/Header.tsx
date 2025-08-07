@@ -43,6 +43,31 @@ const Header = () => {
                 </Link>
               </DropdownMenuContent>
             </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                Features <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64 bg-card border border-border">
+                <Link to="/#features">
+                  <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
+                    <div className="font-medium text-card-foreground">Technical Assessments</div>
+                    <div className="text-sm text-muted-foreground">Code challenges & algorithms</div>
+                  </DropdownMenuItem>
+                </Link>
+                <Link to="/#features">
+                  <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
+                    <div className="font-medium text-card-foreground">Non Technical Assessments</div>
+                    <div className="text-sm text-muted-foreground">Communication & leadership</div>
+                  </DropdownMenuItem>
+                </Link>
+                <Link to="/#features">
+                  <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
+                    <div className="font-medium text-card-foreground">Psychology Assessments</div>
+                    <div className="text-sm text-muted-foreground">Personality & cognitive traits</div>
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
               Pricing
             </Link>
