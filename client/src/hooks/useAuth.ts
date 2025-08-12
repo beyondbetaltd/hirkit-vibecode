@@ -1,10 +1,9 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
 import { AuthService, UserProfile } from '@/lib/auth';
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: UserProfile | null;
+  session: { user: UserProfile } | null;
   profile: UserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
@@ -25,8 +24,8 @@ export const useAuth = () => {
 };
 
 export const useAuthState = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<{ user: UserProfile } | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,11 +34,7 @@ export const useAuthState = () => {
     AuthService.getCurrentSession().then((session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        AuthService.getCurrentUserProfile().then(setProfile);
-      }
-      
+      setProfile(session?.user ?? null);
       setLoading(false);
     });
 
@@ -48,14 +43,7 @@ export const useAuthState = () => {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const profile = await AuthService.getCurrentUserProfile();
-          setProfile(profile);
-        } else {
-          setProfile(null);
-        }
-        
+        setProfile(session?.user ?? null);
         setLoading(false);
       }
     );

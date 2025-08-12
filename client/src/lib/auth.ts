@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { apiRequest } from './queryClient';
 
 export interface SignUpData {
   email: string;
@@ -16,47 +16,56 @@ export interface SignInData {
 
 export interface UserProfile {
   id: string;
-  full_name: string;
+  fullName: string;
   email: string;
   company?: string;
   role: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface AuthResponse {
+  user: UserProfile;
+  session?: { token: string };
+}
+
+// Custom event system for auth state changes
+class AuthEventEmitter {
+  private listeners: ((user: UserProfile | null) => void)[] = [];
+
+  subscribe(callback: (user: UserProfile | null) => void) {
+    this.listeners.push(callback);
+    return () => {
+      const index = this.listeners.indexOf(callback);
+      if (index > -1) {
+        this.listeners.splice(index, 1);
+      }
+    };
+  }
+
+  emit(user: UserProfile | null) {
+    this.listeners.forEach(callback => callback(user));
+  }
+}
+
+const authEvents = new AuthEventEmitter();
 
 export class AuthService {
   // Sign up new user
-  static async signUp(data: SignUpData) {
+  static async signUp(data: SignUpData): Promise<AuthResponse> {
     try {
-      const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            full_name: data.fullName,
-            company: data.company,
-          },
-        },
+      const response = await apiRequest('/api/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify(data),
       });
-
-      if (error) {
-        throw error;
-      }
-
-      if (authData.user && !authData.session) {
-        toast({
-          title: "Check your email",
-          description: "We've sent you a confirmation link to complete your registration.",
-        });
-        return { user: authData.user, needsConfirmation: true };
-      }
 
       toast({
         title: "Welcome to HirKit!",
         description: "Your account has been created successfully.",
       });
 
-      return { user: authData.user, session: authData.session };
+      authEvents.emit(response.user);
+      return response;
     } catch (error: any) {
       console.error('Sign up error:', error);
       toast({
@@ -69,23 +78,20 @@ export class AuthService {
   }
 
   // Sign in existing user
-  static async signIn(data: SignInData) {
+  static async signIn(data: SignInData): Promise<AuthResponse> {
     try {
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+      const response = await apiRequest('/api/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify(data),
       });
-
-      if (error) {
-        throw error;
-      }
 
       toast({
         title: "Welcome back!",
         description: "You have been signed in successfully.",
       });
 
-      return { user: authData.user, session: authData.session };
+      authEvents.emit(response.user);
+      return response;
     } catch (error: any) {
       console.error('Sign in error:', error);
       toast({
@@ -100,16 +106,16 @@ export class AuthService {
   // Sign out user
   static async signOut() {
     try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        throw error;
-      }
+      await apiRequest('/api/auth/signout', {
+        method: 'POST',
+      });
 
       toast({
         title: "Signed out",
         description: "You have been signed out successfully.",
       });
+
+      authEvents.emit(null);
     } catch (error: any) {
       console.error('Sign out error:', error);
       toast({
@@ -124,13 +130,10 @@ export class AuthService {
   // Reset password
   static async resetPassword(email: string) {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      await apiRequest('/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
       });
-
-      if (error) {
-        throw error;
-      }
 
       toast({
         title: "Reset link sent",
@@ -150,24 +153,8 @@ export class AuthService {
   // Get current user profile
   static async getCurrentUserProfile(): Promise<UserProfile | null> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        return null;
-      }
-
-      const { data: profile, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user profile:', error);
-        return null;
-      }
-
-      return profile;
+      const response = await apiRequest('/api/auth/me');
+      return response.user;
     } catch (error) {
       console.error('Error getting current user profile:', error);
       return null;
@@ -175,31 +162,20 @@ export class AuthService {
   }
 
   // Update user profile
-  static async updateProfile(updates: Partial<UserProfile>) {
+  static async updateProfile(updates: Partial<UserProfile>): Promise<UserProfile> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('No authenticated user');
-      }
-
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
+      const response = await apiRequest('/api/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
 
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
       });
 
-      return data;
+      authEvents.emit(response.user);
+      return response.user;
     } catch (error: any) {
       console.error('Profile update error:', error);
       toast({
@@ -211,14 +187,23 @@ export class AuthService {
     }
   }
 
-  // Get current session
+  // Get current session (simplified for our new auth system)
   static async getCurrentSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
+    try {
+      const profile = await this.getCurrentUserProfile();
+      return profile ? { user: profile } : null;
+    } catch {
+      return null;
+    }
   }
 
   // Listen to auth state changes
   static onAuthStateChange(callback: (event: string, session: any) => void) {
-    return supabase.auth.onAuthStateChange(callback);
+    const unsubscribe = authEvents.subscribe((user) => {
+      const session = user ? { user } : null;
+      callback(user ? 'SIGNED_IN' : 'SIGNED_OUT', session);
+    });
+
+    return { data: { subscription: { unsubscribe } } };
   }
 }

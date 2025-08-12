@@ -10,7 +10,11 @@ import { CheckCircle, Clock, Users, Brain, Shield, BarChart3 } from "lucide-reac
 
 const Demo = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [assessmentData, setAssessmentData] = useState({
+  const [assessmentData, setAssessmentData] = useState<{
+    title: string;
+    duration: number;
+    questions: typeof sampleQuestions;
+  }>({
     title: "",
     duration: 30,
     questions: []

@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Lock, Eye, EyeOff } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 const ResetPassword = () => {
@@ -16,22 +15,6 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  
-  useEffect(() => {
-    // Check if we have the required tokens in the URL
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
-    if (!accessToken || !refreshToken) {
-      toast({
-        title: "Invalid reset link",
-        description: "This password reset link is invalid or has expired.",
-        variant: "destructive",
-      });
-      navigate('/signin');
-    }
-  }, [searchParams, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,33 +37,14 @@ const ResetPassword = () => {
       return;
     }
     
-    setIsLoading(true);
-    
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "Password updated",
-        description: "Your password has been updated successfully.",
-      });
-      
-      navigate('/signin');
-    } catch (error: any) {
-      console.error('Password reset error:', error);
-      toast({
-        title: "Reset failed",
-        description: error.message || "An error occurred while resetting your password.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // For now, just redirect to sign in
+    // In a real app, this would verify a reset token and update the password
+    toast({
+      title: "Feature not available",
+      description: "Password reset functionality needs to be implemented with email service.",
+      variant: "destructive",
+    });
+    navigate('/signin');
   };
 
   return (
