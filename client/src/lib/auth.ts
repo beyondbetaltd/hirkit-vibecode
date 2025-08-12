@@ -190,8 +190,8 @@ export class AuthService {
   // Get current session (simplified for our new auth system)
   static async getCurrentSession() {
     try {
-      const profile = await this.getCurrentUserProfile();
-      return profile ? { user: profile } : null;
+      const response = await apiRequest('/api/auth/session');
+      return response.session;
     } catch {
       return null;
     }

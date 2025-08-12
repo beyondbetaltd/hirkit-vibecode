@@ -140,9 +140,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Sign out
-  app.post("/api/auth/signout", requireAuth, async (req: AuthenticatedRequest, res) => {
+  app.post("/api/auth/signout", requireAuth, async (req, res) => {
     try {
-      await storage.deleteSession(req.session.token);
+      const authReq = req as AuthenticatedRequest;
+      await storage.deleteSession(authReq.session.token);
       res.clearCookie('session_token');
       res.json({ message: "Signed out successfully" });
     } catch (error: any) {
@@ -151,10 +152,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get current user
-  app.get("/api/auth/me", requireAuth, async (req: AuthenticatedRequest, res) => {
+  // Check session status (doesn't require auth)
+  app.get("/api/auth/session", async (req, res) => {
     try {
-      const profile = await storage.getUserProfile(req.user.id);
+      const token = req.headers.authorization?.replace('Bearer ', '') || 
+                    req.cookies?.session_token;
+
+      if (!token) {
+        return res.json({ user: null, session: null });
+      }
+
+      const session = await storage.getSession(token);
+      if (!session) {
+        return res.json({ user: null, session: null });
+      }
+
+      const user = await storage.getUser(session.userId);
+      if (!user) {
+        return res.json({ user: null, session: null });
+      }
+
+      const profile = await storage.getUserProfile(user.id);
+      res.json({ user: profile, session: { user: profile } });
+    } catch (error: any) {
+      console.error('Session check error:', error);
+      res.json({ user: null, session: null });
+    }
+  });
+
+  // Get current user (requires auth)
+  app.get("/api/auth/me", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const profile = await storage.getUserProfile(authReq.user.id);
       res.json({ user: profile });
     } catch (error: any) {
       console.error('Get user error:', error);
@@ -163,13 +193,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update profile
-  app.put("/api/auth/profile", requireAuth, async (req: AuthenticatedRequest, res) => {
+  app.put("/api/auth/profile", requireAuth, async (req, res) => {
     try {
+      const authReq = req as AuthenticatedRequest;
       const updates = userProfileSchema.partial().parse(req.body);
       delete updates.id; // Don't allow ID updates
       delete updates.createdAt; // Don't allow createdAt updates
       
-      const profile = await storage.updateUserProfile(req.user.id, updates);
+      const profile = await storage.updateUserProfile(authReq.user.id, updates);
       res.json({ user: profile });
     } catch (error: any) {
       console.error('Update profile error:', error);
