@@ -1,19 +1,114 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Form states
+  const [signInForm, setSignInForm] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
+  
+  const [signUpForm, setSignUpForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    company: "",
+    agreeToTerms: false,
+  });
+  
+  const [forgotPasswordForm, setForgotPasswordForm] = useState({
+    email: "",
+  });
+  
+  const { signIn, signUp, resetPassword, user } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted");
+    setIsLoading(true);
+    
+    try {
+      await signIn(signInForm.email, signInForm.password, signInForm.rememberMe);
+      navigate('/');
+    } catch (error) {
+      // Error is handled in the auth service
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (signUpForm.password !== signUpForm.confirmPassword) {
+      toast({
+        title: "Password mismatch",
+        description: "Passwords do not match. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!signUpForm.agreeToTerms) {
+      toast({
+        title: "Terms required",
+        description: "Please agree to the Terms of Service and Privacy Policy.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      await signUp(
+        signUpForm.email,
+        signUpForm.password,
+        signUpForm.fullName,
+        signUpForm.company || undefined
+      );
+      // User will be redirected after successful signup
+    } catch (error) {
+      // Error is handled in the auth service
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      await resetPassword(forgotPasswordForm.email);
+      setActiveTab("signin");
+    } catch (error) {
+      // Error is handled in the auth service
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -59,7 +154,7 @@ const SignIn = () => {
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 {/* Sign In Tab */}
                 <TabsContent value="signin" className="space-y-6">
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="signin-email">Email</Label>
                       <div className="relative">
@@ -69,6 +164,8 @@ const SignIn = () => {
                           type="email"
                           placeholder="Enter your email"
                           className="pl-10"
+                          value={signInForm.email}
+                          onChange={(e) => setSignInForm({ ...signInForm, email: e.target.value })}
                           required
                         />
                       </div>
@@ -83,6 +180,8 @@ const SignIn = () => {
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
                           className="pl-10 pr-10"
+                          value={signInForm.password}
+                          onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
                           required
                         />
                         <button
@@ -101,6 +200,8 @@ const SignIn = () => {
                           type="checkbox"
                           id="remember"
                           className="h-4 w-4 rounded border-gray-300"
+                          checked={signInForm.rememberMe}
+                          onChange={(e) => setSignInForm({ ...signInForm, rememberMe: e.target.checked })}
                         />
                         <Label htmlFor="remember" className="text-sm">
                           Remember me
@@ -115,7 +216,8 @@ const SignIn = () => {
                       </Button>
                     </div>
 
-                    <Button type="submit" className="w-full" size="lg">
+                    <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                      {isLoading ? "Signing in..." : "Sign In"}
                       Sign In
                     </Button>
                   </form>
@@ -123,7 +225,7 @@ const SignIn = () => {
 
                 {/* Sign Up Tab */}
                 <TabsContent value="signup" className="space-y-6">
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="signup-name">Full Name</Label>
                       <div className="relative">
@@ -133,6 +235,8 @@ const SignIn = () => {
                           type="text"
                           placeholder="Enter your full name"
                           className="pl-10"
+                          value={signUpForm.fullName}
+                          onChange={(e) => setSignUpForm({ ...signUpForm, fullName: e.target.value })}
                           required
                         />
                       </div>
@@ -147,7 +251,24 @@ const SignIn = () => {
                           type="email"
                           placeholder="Enter your email"
                           className="pl-10"
+                          value={signUpForm.email}
+                          onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
                           required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-company">Company (Optional)</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-company"
+                          type="text"
+                          placeholder="Your company name"
+                          className="pl-10"
+                          value={signUpForm.company}
+                          onChange={(e) => setSignUpForm({ ...signUpForm, company: e.target.value })}
                         />
                       </div>
                     </div>
@@ -161,6 +282,8 @@ const SignIn = () => {
                           type={showPassword ? "text" : "password"}
                           placeholder="Create a password"
                           className="pl-10 pr-10"
+                          value={signUpForm.password}
+                          onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
                           required
                         />
                         <button
@@ -182,6 +305,8 @@ const SignIn = () => {
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirm your password"
                           className="pl-10 pr-10"
+                          value={signUpForm.confirmPassword}
+                          onChange={(e) => setSignUpForm({ ...signUpForm, confirmPassword: e.target.value })}
                           required
                         />
                         <button
@@ -199,6 +324,8 @@ const SignIn = () => {
                         type="checkbox"
                         id="terms"
                         className="h-4 w-4 rounded border-gray-300"
+                        checked={signUpForm.agreeToTerms}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, agreeToTerms: e.target.checked })}
                         required
                       />
                       <Label htmlFor="terms" className="text-sm">
@@ -213,7 +340,8 @@ const SignIn = () => {
                       </Label>
                     </div>
 
-                    <Button type="submit" className="w-full" size="lg">
+                    <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                      {isLoading ? "Creating account..." : "Create Account"}
                       Create Account
                     </Button>
                   </form>
@@ -228,7 +356,7 @@ const SignIn = () => {
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="forgot-email">Email</Label>
                       <div className="relative">
@@ -238,12 +366,15 @@ const SignIn = () => {
                           type="email"
                           placeholder="Enter your email"
                           className="pl-10"
+                          value={forgotPasswordForm.email}
+                          onChange={(e) => setForgotPasswordForm({ ...forgotPasswordForm, email: e.target.value })}
                           required
                         />
                       </div>
                     </div>
 
-                    <Button type="submit" className="w-full" size="lg">
+                    <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                      {isLoading ? "Sending..." : "Send Reset Link"}
                       Send Reset Link
                     </Button>
                   </form>

@@ -8,9 +8,19 @@ import {
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, profile, signOut, loading } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b border-border">
@@ -81,12 +91,29 @@ const Header = () => {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/signin">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link to="/contact">
-              <Button variant="hero" size="default">Start Free Trial</Button>
-            </Link>
+            {loading ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
+              </div>
+            ) : user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-muted-foreground">
+                  Welcome, {profile?.full_name || user.email}
+                </span>
+                <Button variant="ghost" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/signin">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link to="/contact">
+                  <Button variant="hero" size="default">Start Free Trial</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -112,12 +139,25 @@ const Header = () => {
                 Contact
               </Link>
               <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-                <Link to="/signin">
-                  <Button variant="ghost" className="justify-start w-full">Sign In</Button>
-                </Link>
-                <Link to="/contact">
-                  <Button variant="hero" className="w-full">Start Free Trial</Button>
-                </Link>
+                {user ? (
+                  <>
+                    <span className="text-sm text-muted-foreground px-3 py-2">
+                      Welcome, {profile?.full_name || user.email}
+                    </span>
+                    <Button variant="ghost" className="justify-start w-full" onClick={handleSignOut}>
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/signin">
+                      <Button variant="ghost" className="justify-start w-full">Sign In</Button>
+                    </Link>
+                    <Link to="/contact">
+                      <Button variant="hero" className="w-full">Start Free Trial</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </nav>
